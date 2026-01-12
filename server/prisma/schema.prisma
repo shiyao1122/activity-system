@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Activity Model
+model Activity {
+  id          Int      @id @default(autoincrement())
+  name        String
+  startTime   DateTime
+  endTime     DateTime
+  status      String   // DRAFT, ACTIVE, ENDED
+  tasks       Task[]
+  userActs    UserActivity[]
+}
+
+// Task Configuration Model
+model Task {
+  id          Int      @id @default(autoincrement())
+  activityId  Int
+  groupName   String   // e.g., "Registration", "Social"
+  points      Int
+  dailyLimit  Int      @default(1) // 0 for unlimited
+  totalLimit  Int      @default(0) // 0 for unlimited
+  descJson    String   // Storing JSON as String for SQLite compatibility, or use Json if switching to Postgres
+  targetGroupName String? // If set, this task is completed when an invitee completes a task with this groupName
+  activity    Activity @relation(fields: [activityId], references: [id])
+  logs        TaskLog[]
+}
+
+// User Activity Summary Model
+model UserActivity {
+  id          Int      @id @default(autoincrement())
+  email       String
+  activityId  Int
+  totalPoints Int      @default(0)
+  updatedAt   DateTime @updatedAt
+  activity    Activity @relation(fields: [activityId], references: [id])
+  logs        TaskLog[]
+
+  @@unique([email, activityId])
+}
+
+// Task Completion Log Model
+model TaskLog {
+  id             Int          @id @default(autoincrement())
+  userActivityId Int
+  taskId         Int
+  pointsEarned   Int
+  createdAt      DateTime     @default(now())
+  userActivity   UserActivity @relation(fields: [userActivityId], references: [id])
+  task           Task         @relation(fields: [taskId], references: [id])
+}
+
+// User Relation Model (Invitation)
+model UserRelation {
+  id           Int      @id @default(autoincrement())
+  inviterEmail String
+  inviteeEmail String
+  activityId   Int
+  createdAt    DateTime @default(now())
+}
