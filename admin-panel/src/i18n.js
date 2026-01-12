@@ -19,6 +19,8 @@ const messages = {
             confirm: 'Confirm',
             actions: 'Actions',
             createActivity: 'Create Activity',
+            updateActivity: 'Update Activity',
+            deleteConfirm: 'Are you sure you want to delete this activity?',
         },
         activity: {
             id: 'ID',
@@ -29,6 +31,8 @@ const messages = {
             create: 'Create Activity',
             timeRange: 'Time Range',
             active: 'Active',
+            draft: 'Draft',
+            ended: 'Ended',
         },
         dashboard: {
             totalUsers: 'Total Users',
@@ -82,6 +86,8 @@ const messages = {
             confirm: '确认',
             actions: '操作',
             createActivity: '创建活动',
+            updateActivity: '更新活动',
+            deleteConfirm: '确认删除该活动吗？',
         },
         activity: {
             id: 'ID',
@@ -92,6 +98,8 @@ const messages = {
             create: '创建活动',
             timeRange: '时间范围',
             active: '进行中',
+            draft: '草稿',
+            ended: '已结束',
         },
         dashboard: {
             totalUsers: '参与总人数',
