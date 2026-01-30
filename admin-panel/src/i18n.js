@@ -21,6 +21,9 @@ const messages = {
             createActivity: 'Create Activity',
             updateActivity: 'Update Activity',
             deleteConfirm: 'Are you sure you want to delete this activity?',
+            clone: 'Clone',
+            cloneConfirm: 'Are you sure you want to clone this activity?',
+            cloneSuccess: 'Clone Success',
         },
         activity: {
             id: 'ID',
@@ -88,6 +91,9 @@ const messages = {
             createActivity: '创建活动',
             updateActivity: '更新活动',
             deleteConfirm: '确认删除该活动吗？',
+            clone: '复刻',
+            cloneConfirm: '确认复刻该活动吗？',
+            cloneSuccess: '复刻成功',
         },
         activity: {
             id: 'ID',

@@ -1,12 +1,12 @@
 # Client API Documentation
 
 ## Base URL
-`http://<server-host>/api/v1`
+`https://activity-system-undh.onrender.com/api/v1`
 
 ## Authentication
 All requests to the Client API must include the `x-api-key` header.
 - **Header**: `x-api-key`
-- **Value**: `secret-key-for-dev` (Replace with actual secret in production)
+- **Value**: `hitpaw-test-20260112` (Replace with actual secret in production)
 
 ---
 

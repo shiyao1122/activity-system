@@ -248,6 +248,60 @@ const deleteTask = async (req, res) => {
     }
 };
 
+
+const cloneActivity = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const sourceActivityId = parseInt(id);
+
+        const sourceActivity = await prisma.activity.findUnique({
+            where: { id: sourceActivityId },
+            include: { tasks: true } // Fetch tasks as well
+        });
+
+        if (!sourceActivity) {
+            return res.status(404).json({ error: 'Activity not found' });
+        }
+
+        // Use transaction to ensure both activity and tasks are created
+        const newActivity = await prisma.$transaction(async (prisma) => {
+            // 1. Create new activity
+            const createdActivity = await prisma.activity.create({
+                data: {
+                    name: `${sourceActivity.name} (Copy)`,
+                    startTime: sourceActivity.startTime,
+                    endTime: sourceActivity.endTime,
+                    status: 'DRAFT', // Default to DRAFT
+                },
+            });
+
+            // 2. Clone tasks
+            if (sourceActivity.tasks && sourceActivity.tasks.length > 0) {
+                const tasksToCreate = sourceActivity.tasks.map(task => ({
+                    activityId: createdActivity.id,
+                    groupName: task.groupName,
+                    points: task.points,
+                    dailyLimit: task.dailyLimit,
+                    totalLimit: task.totalLimit,
+                    descJson: task.descJson,
+                    targetGroupName: task.targetGroupName,
+                }));
+
+                await prisma.task.createMany({
+                    data: tasksToCreate,
+                });
+            }
+
+            return createdActivity;
+        });
+
+        res.json(newActivity);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     getStats,
     adjustPoints,
@@ -257,6 +311,7 @@ module.exports = {
     getActivity,
     updateActivity,
     deleteActivity,
+    cloneActivity,
     createTask,
     getTasks,
     updateTask,

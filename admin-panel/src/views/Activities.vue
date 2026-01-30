@@ -8,8 +8,8 @@
     <el-table :data="activities" style="width: 100%">
       <el-table-column prop="id" :label="$t('activity.id')" width="80" />
       <el-table-column prop="name" :label="$t('activity.name')" />
-      <el-table-column prop="startTime" :label="$t('activity.startTime')" />
-      <el-table-column prop="endTime" :label="$t('activity.endTime')" />
+      <el-table-column prop="startTime" :label="$t('activity.startTime')" width="200" />
+      <el-table-column prop="endTime" :label="$t('activity.endTime')" width="200" />
       <el-table-column prop="status" :label="$t('activity.status')" width="100">
         <template #default="scope">
           <el-tag :type="scope.row.status === 'ACTIVE' ? 'success' : 'info'">
@@ -17,10 +17,11 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('app.actions')" width="300">
+      <el-table-column :label="$t('app.actions')" width="400">
         <template #default="scope">
           <el-button size="small" @click="$router.push(`/dashboard/${scope.row.id}`)">{{ $t('app.dashboard') }}</el-button>
           <el-button size="small" @click="$router.push(`/tasks/${scope.row.id}`)">{{ $t('app.tasks') }}</el-button>
+          <el-button size="small" type="success" @click="cloneActivity(scope.row)">{{ $t('app.clone') }}</el-button>
           <el-button size="small" type="primary" v-if="scope.row.status === 'DRAFT'" @click="openEditDialog(scope.row)">{{ $t('app.edit') }}</el-button>
           <el-button size="small" type="danger" v-if="scope.row.status === 'DRAFT'" @click="deleteActivity(scope.row)">{{ $t('app.delete') }}</el-button>
         </template>
@@ -65,7 +66,8 @@ import api from '../api';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const isZh = ref(locale.value === 'zh'); // Simple check
 const activities = ref([]);
 const showDialog = ref(false);
 const isEdit = ref(false);
@@ -138,6 +140,26 @@ const deleteActivity = (row) => {
     try {
       await api.delete(`/activity/${row.id}`);
       ElMessage.success(t('app.delete') + ' Success');
+      fetchActivities();
+    } catch (error) {
+      ElMessage.error(error.response?.data?.error || error.message);
+    }
+  });
+};
+
+const cloneActivity = async (row) => {
+  ElMessageBox.confirm(
+    t('app.cloneConfirm').replace('this activity', `"${row.name}"`).replace('该活动', `"${row.name}"`), // Crude replacement, ideally use named params in i18n
+    'Warning',
+    {
+      confirmButtonText: t('app.confirm'),
+      cancelButtonText: t('app.cancel'),
+      type: 'info',
+    }
+  ).then(async () => {
+    try {
+      await api.post(`/activity/${row.id}/clone`);
+      ElMessage.success(t('app.cloneSuccess'));
       fetchActivities();
     } catch (error) {
       ElMessage.error(error.response?.data?.error || error.message);

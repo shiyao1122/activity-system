@@ -11,6 +11,7 @@ router.post('/task/adjust', adminController.adjustPoints);
 
 // Activity
 router.post('/activity', adminController.createActivity);
+router.post('/activity/:id/clone', adminController.cloneActivity);
 router.get('/activity', adminController.getActivities);
 router.get('/activity/:id', adminController.getActivity);
 router.put('/activity/:id', adminController.updateActivity);
