@@ -164,7 +164,7 @@ const deleteActivity = async (req, res) => {
 
 // CRUD Task
 const createTask = async (req, res) => {
-    const { activityId, groupName, points, dailyLimit, totalLimit, descJson, targetGroupName } = req.body;
+    const { activityId, groupName, points, dailyLimit, totalLimit, descJson, targetGroupName, platform } = req.body;
     try {
         // Check activity status
         const activity = await prisma.activity.findUnique({ where: { id: activityId } });
@@ -180,6 +180,7 @@ const createTask = async (req, res) => {
                 totalLimit,
                 descJson: typeof descJson === 'object' ? JSON.stringify(descJson) : descJson,
                 targetGroupName,
+                platform: platform || 'mobile', // Default to mobile if not provided
             },
         });
         res.json(task);
@@ -204,7 +205,7 @@ const getTasks = async (req, res) => {
 
 const updateTask = async (req, res) => {
     const { id } = req.params;
-    const { groupName, points, dailyLimit, totalLimit, descJson, targetGroupName } = req.body;
+    const { groupName, points, dailyLimit, totalLimit, descJson, targetGroupName, platform } = req.body;
     try {
         const task = await prisma.task.findUnique({ where: { id: parseInt(id) }, include: { activity: true } });
         if (!task) return res.status(404).json({ error: 'Task not found' });
@@ -219,6 +220,7 @@ const updateTask = async (req, res) => {
                 totalLimit,
                 descJson: typeof descJson === 'object' ? JSON.stringify(descJson) : descJson,
                 targetGroupName,
+                platform,
             },
         });
         res.json(updated);
@@ -285,6 +287,7 @@ const cloneActivity = async (req, res) => {
                     totalLimit: task.totalLimit,
                     descJson: task.descJson,
                     targetGroupName: task.targetGroupName,
+                    platform: task.platform,
                 }));
 
                 await prisma.task.createMany({

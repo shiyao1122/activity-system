@@ -68,6 +68,9 @@ const messages = {
             hint: 'Positive to add, negative to deduct',
             descriptionEn: 'Description (EN)',
             selectLanguages: 'Select Other Languages',
+            platform: 'Platform',
+            mobile: 'Mobile',
+            desktop: 'Desktop',
         },
         user: {
             userDetails: 'User Details',
@@ -145,6 +148,9 @@ const messages = {
             hint: '正数为增加，负数为扣除',
             descriptionEn: '描述 (英文)',
             selectLanguages: '选择其他语言',
+            platform: '平台',
+            mobile: '移动端',
+            desktop: '桌面端',
         },
         user: {
             userDetails: '用户详情',

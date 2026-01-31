@@ -10,6 +10,11 @@
       <el-table-column prop="groupName" :label="$t('task.groupName')" />
       <el-table-column prop="targetGroupName" :label="$t('task.targetGroupName')" />
       <el-table-column prop="points" :label="$t('task.points')" />
+      <el-table-column prop="platform" :label="$t('task.platform')" width="100">
+        <template #default="scope">
+          {{ scope.row.platform || 'mobile' }}
+        </template>
+      </el-table-column>
       <el-table-column prop="dailyLimit" :label="$t('task.dailyLimit')" />
       <el-table-column prop="totalLimit" :label="$t('task.totalLimit')" />
       <el-table-column prop="descJson" :label="$t('task.descJson')" show-overflow-tooltip />
@@ -28,6 +33,12 @@
         </el-form-item>
         <el-form-item :label="$t('task.targetGroupName')">
           <el-input v-model="form.targetGroupName" placeholder="Optional: e.g. register (for invite tasks)" />
+        </el-form-item>
+        <el-form-item :label="$t('task.platform')">
+          <el-select v-model="form.platform" placeholder="Select platform">
+            <el-option label="Mobile" value="mobile" />
+            <el-option label="Desktop" value="desktop" />
+          </el-select>
         </el-form-item>
         <el-form-item :label="$t('task.points')">
           <el-input-number v-model="form.points" />
@@ -94,6 +105,7 @@ const form = ref({
   id: null,
   groupName: '',
   targetGroupName: '',
+  platform: 'mobile',
   points: 0,
   dailyLimit: 0,
   totalLimit: 0,
@@ -105,7 +117,6 @@ const descForm = reactive({
   others: {}
 });
 const selectedLangs = ref([]);
-
 const supportedLangs = [
   { value: 'zh', label: 'Chinese (zh)' },
   { value: 'ja', label: 'Japanese (ja)' },
@@ -146,7 +157,7 @@ const fetchTasks = async () => {
 
 const openCreateDialog = () => {
   isEdit.value = false;
-  form.value = { groupName: '', targetGroupName: '', points: 0, dailyLimit: 0, totalLimit: 0 };
+  form.value = { groupName: '', targetGroupName: '', platform: 'mobile', points: 0, dailyLimit: 0, totalLimit: 0 };
   descForm.en = '';
   descForm.others = {};
   selectedLangs.value = [];
@@ -159,6 +170,7 @@ const openEditDialog = (row) => {
     id: row.id,
     groupName: row.groupName,
     targetGroupName: row.targetGroupName || '',
+    platform: row.platform || 'mobile',
     points: row.points,
     dailyLimit: row.dailyLimit,
     totalLimit: row.totalLimit,
@@ -237,6 +249,7 @@ const submitTask = async () => {
       activityId: parseInt(activityId),
       groupName: form.value.groupName,
       targetGroupName: form.value.targetGroupName || null,
+      platform: form.value.platform,
       points: form.value.points,
       dailyLimit: form.value.dailyLimit,
       totalLimit: form.value.totalLimit,
