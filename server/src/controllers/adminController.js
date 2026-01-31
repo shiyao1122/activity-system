@@ -295,12 +295,54 @@ const cloneActivity = async (req, res) => {
             return createdActivity;
         });
 
+
+
         res.json(newActivity);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
+
+const translateText = async (req, res) => {
+    const { text, targetLangs } = req.body;
+    if (!text || !targetLangs || !targetLangs.length) {
+        return res.status(400).json({ error: 'Missing text or targetLanguages' });
+    }
+
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
+        }
+
+        const { GoogleGenerativeAI } = require('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+
+        const prompt = `Translate the following text: "${text}" into these languages: ${targetLangs.join(', ')}. 
+        Return ONLY a JSON object where keys are the language codes (from the list: ${targetLangs.join(', ')}) and values are the translations. 
+        Example format: { "zh": "...", "ja": "..." }`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const textResponse = response.text();
+
+        // Extract JSON from response (in case of markdown blocks)
+        const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('Failed to parse translation response');
+        }
+
+        const translations = JSON.parse(jsonMatch[0]);
+        res.json(translations);
+    } catch (error) {
+        console.error("Translation error:", error);
+        res.status(500).json({ error: 'Translation failed: ' + error.message });
+    }
+};
+
+
 
 module.exports = {
     getStats,
@@ -316,4 +358,5 @@ module.exports = {
     getTasks,
     updateTask,
     deleteTask,
+    translateText,
 };

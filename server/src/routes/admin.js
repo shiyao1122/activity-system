@@ -10,6 +10,7 @@ router.get('/export/rank', adminController.exportRank);
 router.post('/task/adjust', adminController.adjustPoints);
 
 // Activity
+router.post('/translate', adminController.translateText);
 router.post('/activity', adminController.createActivity);
 router.post('/activity/:id/clone', adminController.cloneActivity);
 router.get('/activity', adminController.getActivities);

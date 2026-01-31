@@ -24,6 +24,7 @@ const messages = {
             clone: 'Clone',
             cloneConfirm: 'Are you sure you want to clone this activity?',
             cloneSuccess: 'Clone Success',
+            translateSuccess: 'Auto Translate Success',
         },
         activity: {
             id: 'ID',
@@ -60,7 +61,13 @@ const messages = {
             finished: 'Finished',
             inProgress: 'In Progress',
             unlimited: '0 for unlimited',
+            status: 'Status',
+            finished: 'Finished',
+            inProgress: 'In Progress',
+            unlimited: '0 for unlimited',
             hint: 'Positive to add, negative to deduct',
+            descriptionEn: 'Description (EN)',
+            selectLanguages: 'Select Other Languages',
         },
         user: {
             userDetails: 'User Details',
@@ -94,6 +101,7 @@ const messages = {
             clone: '复刻',
             cloneConfirm: '确认复刻该活动吗？',
             cloneSuccess: '复刻成功',
+            translateSuccess: '自动翻译成功',
         },
         activity: {
             id: 'ID',
@@ -130,7 +138,13 @@ const messages = {
             finished: '已完成',
             inProgress: '进行中',
             unlimited: '0 为不限',
+            status: '状态',
+            finished: '已完成',
+            inProgress: '进行中',
+            unlimited: '0 为不限',
             hint: '正数为增加，负数为扣除',
+            descriptionEn: '描述 (英文)',
+            selectLanguages: '选择其他语言',
         },
         user: {
             userDetails: '用户详情',
