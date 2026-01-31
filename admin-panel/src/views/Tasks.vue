@@ -41,8 +41,8 @@
         </el-form-item>
         <el-form-item :label="$t('task.platform')" prop="platform">
           <el-select v-model="form.platform" placeholder="Select platform">
-            <el-option label="Mobile" value="mobile" />
-            <el-option label="Desktop" value="desktop" />
+            <el-option label="APP" value="APP" />
+            <el-option label="PC" value="PC" />
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('task.category')" prop="categoryId">
