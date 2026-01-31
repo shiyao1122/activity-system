@@ -189,6 +189,7 @@ const getUserStatus = async (req, res) => {
 
         const tasks = await prisma.task.findMany({
             where: { activityId: parseInt(activityId) },
+            include: { category: true },
         });
 
         // Format response
@@ -212,6 +213,9 @@ const getUserStatus = async (req, res) => {
                 id: task.id,
                 taskName: task.taskName,
                 description: desc[lang] || desc['en'] || 'Task',
+                platform: task.platform,
+                category: task.category ? task.category.name : null,
+                targetTaskName: task.targetTaskName,
                 points: task.points,
                 completed: {
                     total: totalCompleted,
@@ -250,6 +254,7 @@ const getActivityDetails = async (req, res) => {
 
         const tasks = await prisma.task.findMany({
             where: { activityId: parseInt(id) },
+            include: { category: true },
         });
 
         const formattedTasks = tasks.map(task => {
@@ -264,6 +269,9 @@ const getActivityDetails = async (req, res) => {
                 id: task.id,
                 taskName: task.taskName,
                 description: desc[lang] || desc['en'] || 'Task',
+                platform: task.platform,
+                category: task.category ? task.category.name : null,
+                targetTaskName: task.targetTaskName,
                 points: task.points,
                 limits: {
                     total: task.totalLimit,

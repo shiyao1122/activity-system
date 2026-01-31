@@ -36,6 +36,9 @@ async function testClientAPI() {
         const taskInDetails = detailsRes.data.tasks.find(t => t.id === taskId);
         console.log('Get Activity Details: SUCCESS');
         console.log(' - Checking taskName field:', taskInDetails.taskName === 'login-task' ? 'PASS' : 'FAIL');
+        console.log(' - Checking platform field:', taskInDetails.platform === 'mobile' ? 'PASS' : 'FAIL');
+        // task created in setup didn't have category set, so it should be null
+        console.log(' - Checking category field:', taskInDetails.category === null ? 'PASS' : 'FAIL');
 
         // 2. Report Task
         const reportRes = await axios.post(`${API_URL}/task/report`, {
@@ -53,6 +56,7 @@ async function testClientAPI() {
         const userTask = statusRes.data.tasks.find(t => t.id === taskId);
         console.log('Get User Status: SUCCESS');
         console.log(' - Checking taskName in user status:', userTask.taskName === 'login-task' ? 'PASS' : 'FAIL');
+        console.log(' - Checking platform in user status:', userTask.platform === 'mobile' ? 'PASS' : 'FAIL');
         console.log(' - Checking completed count:', userTask.completed.total === 1 ? 'PASS' : 'FAIL');
 
         // Cleanup

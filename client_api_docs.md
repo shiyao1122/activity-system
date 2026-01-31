@@ -91,6 +91,9 @@ Retrieve a user's current point total and task completion status for a specific 
       "id": 1,
       "taskName": "login",
       "description": "Daily Login",
+      "platform": "mobile",
+      "category": null,
+      "targetTaskName": null,
       "points": 50,
       "completed": {
         "total": 3,
@@ -106,6 +109,9 @@ Retrieve a user's current point total and task completion status for a specific 
       "id": 2,
       "taskName": "register",
       "description": "Register Account",
+      "platform": "mobile",
+      "category": "Social",
+      "targetTaskName": "login",
       "points": 100,
       "completed": {
         "total": 1,
@@ -160,6 +166,9 @@ Retrieve details of a specific activity and its associated tasks.
       "id": 1,
       "taskName": "register",
       "description": "Register an account",
+      "platform": "mobile",
+      "category": "Social",
+      "targetTaskName": null,
       "points": 100,
       "limits": {
         "total": 1,
