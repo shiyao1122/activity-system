@@ -7,12 +7,17 @@
 
     <el-table :data="tasks" style="width: 100%">
       <el-table-column prop="id" :label="$t('activity.id')" width="80" />
-      <el-table-column prop="groupName" :label="$t('task.groupName')" />
-      <el-table-column prop="targetGroupName" :label="$t('task.targetGroupName')" />
+      <el-table-column prop="taskName" :label="$t('task.taskName')" />
+      <el-table-column prop="targetTaskName" :label="$t('task.targetTaskName')" />
       <el-table-column prop="points" :label="$t('task.points')" />
       <el-table-column prop="platform" :label="$t('task.platform')" width="100">
         <template #default="scope">
           {{ scope.row.platform || 'mobile' }}
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('task.category')" width="120">
+        <template #default="scope">
+          {{ categories.find(c => c.id === scope.row.categoryId)?.name || '-' }}
         </template>
       </el-table-column>
       <el-table-column prop="dailyLimit" :label="$t('task.dailyLimit')" />
@@ -27,17 +32,22 @@
     </el-table>
 
     <el-dialog v-model="showDialog" :title="isEdit ? $t('app.updateTask') : $t('task.createTask')">
-      <el-form :model="form" label-width="120px">
-        <el-form-item :label="$t('task.groupName')">
-          <el-input v-model="form.groupName" placeholder="e.g. register, login" />
+      <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
+        <el-form-item :label="$t('task.taskName')" prop="taskName">
+          <el-input v-model="form.taskName" placeholder="e.g. register, login" />
         </el-form-item>
-        <el-form-item :label="$t('task.targetGroupName')">
-          <el-input v-model="form.targetGroupName" placeholder="Optional: e.g. register (for invite tasks)" />
+        <el-form-item :label="$t('task.targetTaskName')" prop="targetTaskName">
+          <el-input v-model="form.targetTaskName" placeholder="Optional: e.g. register (for invite tasks)" />
         </el-form-item>
-        <el-form-item :label="$t('task.platform')">
+        <el-form-item :label="$t('task.platform')" prop="platform">
           <el-select v-model="form.platform" placeholder="Select platform">
             <el-option label="Mobile" value="mobile" />
             <el-option label="Desktop" value="desktop" />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('task.category')" prop="categoryId">
+          <el-select v-model="form.categoryId" placeholder="Select Category" clearable>
+            <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('task.points')">
@@ -103,9 +113,10 @@ const showDialog = ref(false);
 const isEdit = ref(false);
 const form = ref({
   id: null,
-  groupName: '',
-  targetGroupName: '',
+  taskName: '',
+  targetTaskName: '',
   platform: 'mobile',
+  categoryId: null,
   points: 0,
   dailyLimit: 0,
   totalLimit: 0,
@@ -116,6 +127,14 @@ const descForm = reactive({
   en: '',
   others: {}
 });
+const formRef = ref(null);
+const rules = {
+  taskName: [
+    { required: true, message: 'Please input Task Name', trigger: 'blur' },
+    { pattern: /^[a-zA-Z0-9_-]+$/, message: 'Task Name must be alphanumeric/dashes only (No spaces)', trigger: 'blur' }
+  ]
+};
+
 const selectedLangs = ref([]);
 const supportedLangs = [
   { value: 'zh', label: 'Chinese (zh)' },
@@ -135,6 +154,16 @@ const supportedLangs = [
 const getLangLabel = (code) => {
   const found = supportedLangs.find(l => l.value === code);
   return found ? found.label : code;
+};
+
+const categories = ref([]);
+const fetchCategories = async () => {
+    try {
+        const res = await api.get('/category');
+        categories.value = res.data;
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 const fetchActivity = async () => {
@@ -157,7 +186,7 @@ const fetchTasks = async () => {
 
 const openCreateDialog = () => {
   isEdit.value = false;
-  form.value = { groupName: '', targetGroupName: '', platform: 'mobile', points: 0, dailyLimit: 0, totalLimit: 0 };
+  form.value = { taskName: '', targetTaskName: '', platform: 'mobile', categoryId: null, points: 0, dailyLimit: 0, totalLimit: 0 };
   descForm.en = '';
   descForm.others = {};
   selectedLangs.value = [];
@@ -168,9 +197,10 @@ const openEditDialog = (row) => {
   isEdit.value = true;
   form.value = {
     id: row.id,
-    groupName: row.groupName,
-    targetGroupName: row.targetGroupName || '',
+    taskName: row.taskName,
+    targetTaskName: row.targetTaskName || '',
     platform: row.platform || 'mobile',
+    categoryId: row.categoryId || null,
     points: row.points,
     dailyLimit: row.dailyLimit,
     totalLimit: row.totalLimit,
@@ -236,20 +266,25 @@ watch(selectedLangs, async (newVal, oldVal) => {
 });
 
 const submitTask = async () => {
-  try {
-    // Construct JSON
-    const descObj = { en: descForm.en };
-    selectedLangs.value.forEach(lang => {
-      if (descForm.others[lang]) {
-        descObj[lang] = descForm.others[lang];
-      }
-    });
+  if (!formRef.value) return;
+  
+  await formRef.value.validate(async (valid, fields) => {
+    if (valid) {
+      try {
+        // Construct JSON
+        const descObj = { en: descForm.en };
+        selectedLangs.value.forEach(lang => {
+          if (descForm.others[lang]) {
+            descObj[lang] = descForm.others[lang];
+          }
+        });
 
-    const payload = {
+        const payload = {
       activityId: parseInt(activityId),
-      groupName: form.value.groupName,
-      targetGroupName: form.value.targetGroupName || null,
+      taskName: form.value.taskName,
+      targetTaskName: form.value.targetTaskName || null,
       platform: form.value.platform,
+      categoryId: form.value.categoryId || null,
       points: form.value.points,
       dailyLimit: form.value.dailyLimit,
       totalLimit: form.value.totalLimit,
@@ -265,9 +300,13 @@ const submitTask = async () => {
     }
     showDialog.value = false;
     fetchTasks();
-  } catch (error) {
-    ElMessage.error(error.response?.data?.error || error.message);
-  }
+      } catch (error) {
+        ElMessage.error(error.response?.data?.error || error.message);
+      }
+    } else {
+        ElMessage.warning('Please check form validation');
+    }
+  });
 };
 
 const deleteTask = (row) => {
@@ -293,6 +332,7 @@ const deleteTask = (row) => {
 onMounted(() => {
   fetchActivity();
   fetchTasks();
+  fetchCategories();
 });
 </script>
 

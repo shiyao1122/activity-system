@@ -25,15 +25,23 @@ model Activity {
 model Task {
   id          Int      @id @default(autoincrement())
   activityId  Int
-  groupName   String   // e.g., "Registration", "Social"
+  taskName    String   // e.g., "Registration", "Social" (Renamed from groupName)
   points      Int
   dailyLimit  Int      @default(1) // 0 for unlimited
   totalLimit  Int      @default(0) // 0 for unlimited
   descJson    String   // Storing JSON as String for SQLite compatibility, or use Json if switching to Postgres
-  targetGroupName String? // If set, this task is completed when an invitee completes a task with this groupName
+  targetTaskName String? // If set, this task is completed when an invitee completes a task with this taskName (Renamed from targetGroupName)
   platform    String   @default("mobile") // mobile, desktop
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
   activity    Activity @relation(fields: [activityId], references: [id])
   logs        TaskLog[]
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  tasks Task[]
 }
 
 // User Activity Summary Model

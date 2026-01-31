@@ -10,7 +10,8 @@ A comprehensive activity management system consisting of a Node.js/Express backe
 ## Features
 
 - **Activity Management**: Create, update, delete, and clone activities.
-- **Task Management**: Configure tasks for each activity (Daily/Total limits, Points, Groups).
+- **Category Management**: Organize tasks into categories (create, update, delete).
+- **Task Management**: Configure tasks for each activity (Daily/Total limits, Points, Task Names).
 - **Dashboard**: View activity statistics, leaderboards, and export data.
 - **Internationalization (i18n)**: Bilingual support (English/Chinese) for the Admin Panel.
 - **User Activity Tracking**: Track user points, task completions, and history.

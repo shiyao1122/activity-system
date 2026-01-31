@@ -24,4 +24,10 @@ router.get('/task', adminController.getTasks);
 router.put('/task/:id', adminController.updateTask);
 router.delete('/task/:id', adminController.deleteTask);
 
+// Category
+router.post('/category', adminController.createCategory);
+router.get('/category', adminController.getCategories);
+router.put('/category/:id', adminController.updateCategory);
+router.delete('/category/:id', adminController.deleteCategory);
+
 module.exports = router;

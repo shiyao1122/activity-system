@@ -24,15 +24,15 @@ Report a user's action to the system to earn points.
 | :--- | :--- | :--- | :--- |
 | `email` | String | Yes | User's email address. |
 | `activityId` | Integer | Yes | ID of the activity. |
-| `taskGroupName` | String | Yes | The group name of the task (e.g., `register`, `login`). |
-| `inviterEmail` | String | No | Email of the inviter. If provided, and if there is an invitation task targeting this `taskGroupName`, the inviter will receive points. |
+| `taskName` | String | Yes | The unique name of the task (e.g., `register`, `login`). Must be English alphanumeric/dashes only, no spaces. |
+| `inviterEmail` | String | No | Email of the inviter. If provided, and if there is an invitation task targeting this `taskName`, the inviter will receive points. |
 
 #### Example Request
 ```json
 {
   "email": "user@example.com",
   "activityId": 1,
-  "taskGroupName": "login"
+  "taskName": "login"
 }
 ```
 
@@ -89,7 +89,7 @@ Retrieve a user's current point total and task completion status for a specific 
   "tasks": [
     {
       "id": 1,
-      "groupName": "login",
+      "taskName": "login",
       "description": "Daily Login",
       "points": 50,
       "completed": {
@@ -104,7 +104,7 @@ Retrieve a user's current point total and task completion status for a specific 
     },
     {
       "id": 2,
-      "groupName": "register",
+      "taskName": "register",
       "description": "Register Account",
       "points": 100,
       "completed": {
@@ -158,7 +158,7 @@ Retrieve details of a specific activity and its associated tasks.
   "tasks": [
     {
       "id": 1,
-      "groupName": "register",
+      "taskName": "register",
       "description": "Register an account",
       "points": 100,
       "limits": {

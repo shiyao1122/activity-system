@@ -4,6 +4,7 @@ import Dashboard from '../views/Dashboard.vue'
 import Activities from '../views/Activities.vue'
 import Tasks from '../views/Tasks.vue'
 import UserDetail from '../views/UserDetail.vue'
+import Categories from '../views/Categories.vue'
 
 const routes = [
     {
@@ -29,6 +30,11 @@ const routes = [
         path: '/user/:activityId/:email',
         name: 'UserDetail',
         component: UserDetail
+    },
+    {
+        path: '/categories',
+        name: 'Categories',
+        component: Categories
     }
 ]
 

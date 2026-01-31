@@ -6,9 +6,9 @@ const reportTask = async (req, res) => {
         return res.status(403).json({ error: 'Forbidden' });
     }
 
-    const { email, activityId, taskGroupName, inviterEmail } = req.body;
+    const { email, activityId, taskName, inviterEmail } = req.body;
 
-    if (!email || !activityId || !taskGroupName) {
+    if (!email || !activityId || !taskName) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -25,10 +25,10 @@ const reportTask = async (req, res) => {
             }
 
             // 2. Find Task
-            // Assuming groupName is unique per activity for simplicity, or we take the first one.
+            // Assuming taskName is unique per activity for simplicity, or we take the first one.
             // In reality, might need more specific selector.
             const task = await tx.task.findFirst({
-                where: { activityId, groupName: taskGroupName },
+                where: { activityId, taskName: taskName }, // Changed groupName to taskName
             });
 
             if (!task) {
@@ -100,11 +100,11 @@ const reportTask = async (req, res) => {
                     });
                 }
 
-                // Find all tasks in this activity that target this task's groupName
+                // Find all tasks in this activity that target this task's taskName
                 const inviteTasks = await tx.task.findMany({
                     where: {
                         activityId,
-                        targetGroupName: taskGroupName, // The task just completed by invitee
+                        targetTaskName: taskName, // The task just completed by invitee (Renamed from targetGroupName)
                     },
                 });
 
@@ -210,7 +210,7 @@ const getUserStatus = async (req, res) => {
 
             return {
                 id: task.id,
-                groupName: task.groupName,
+                taskName: task.taskName,
                 description: desc[lang] || desc['en'] || 'Task',
                 points: task.points,
                 completed: {
@@ -262,7 +262,7 @@ const getActivityDetails = async (req, res) => {
 
             return {
                 id: task.id,
-                groupName: task.groupName,
+                taskName: task.taskName,
                 description: desc[lang] || desc['en'] || 'Task',
                 points: task.points,
                 limits: {

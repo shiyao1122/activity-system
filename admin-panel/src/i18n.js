@@ -24,7 +24,15 @@ const messages = {
             clone: 'Clone',
             cloneConfirm: 'Are you sure you want to clone this activity?',
             cloneSuccess: 'Clone Success',
+            cloneSuccess: 'Clone Success',
             translateSuccess: 'Auto Translate Success',
+            categories: 'Categories',
+            createCategory: 'Create Category',
+            updateCategory: 'Update Category',
+            createSuccess: 'Create Success',
+            updateSuccess: 'Update Success',
+            deleteSuccess: 'Delete Success',
+            warning: 'Warning',
         },
         activity: {
             id: 'ID',
@@ -48,8 +56,8 @@ const messages = {
             exportRank: 'Export Rank CSV',
         },
         task: {
-            groupName: 'Group Name',
-            targetGroupName: 'Target Group Name (Invite)',
+            taskName: 'Task Name',
+            targetTaskName: 'Target Task Name (Invite)',
             points: 'Points',
             dailyLimit: 'Daily Limit',
             totalLimit: 'Total Limit',
@@ -71,6 +79,7 @@ const messages = {
             platform: 'Platform',
             mobile: 'Mobile',
             desktop: 'Desktop',
+            category: 'Category',
         },
         user: {
             userDetails: 'User Details',
@@ -79,6 +88,9 @@ const messages = {
             adjustPoints: 'Adjust Points',
             taskHistory: 'Task History',
             reason: 'Reason',
+        },
+        category: {
+            name: 'Category Name',
         }
     },
     zh: {
@@ -104,7 +116,15 @@ const messages = {
             clone: '复刻',
             cloneConfirm: '确认复刻该活动吗？',
             cloneSuccess: '复刻成功',
+            cloneSuccess: '复刻成功',
             translateSuccess: '自动翻译成功',
+            categories: '分类管理',
+            createCategory: '创建分类',
+            updateCategory: '更新分类',
+            createSuccess: '创建成功',
+            updateSuccess: '更新成功',
+            deleteSuccess: '删除成功',
+            warning: '警告',
         },
         activity: {
             id: 'ID',
@@ -128,8 +148,8 @@ const messages = {
             exportRank: '导出排名 CSV',
         },
         task: {
-            groupName: '任务组名',
-            targetGroupName: '目标任务组名 (邀请)',
+            taskName: '任务名称',
+            targetTaskName: '目标任务名称 (邀请)',
             points: '分值',
             dailyLimit: '每日上限',
             totalLimit: '总上限',
@@ -151,6 +171,7 @@ const messages = {
             platform: '平台',
             mobile: '移动端',
             desktop: '桌面端',
+            category: '分类',
         },
         user: {
             userDetails: '用户详情',
@@ -159,6 +180,9 @@ const messages = {
             adjustPoints: '调整积分',
             taskHistory: '任务记录',
             reason: '调整原因',
+        },
+        category: {
+            name: '分类名称',
         }
     }
 }

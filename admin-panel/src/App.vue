@@ -5,6 +5,7 @@
       <div class="header-right">
         <el-menu mode="horizontal" router :default-active="$route.path" class="nav-menu">
           <el-menu-item index="/activities">{{ $t('app.activities') }}</el-menu-item>
+          <el-menu-item index="/categories">{{ $t('app.categories') }}</el-menu-item>
         </el-menu>
         <el-dropdown @command="handleLangCommand">
           <span class="el-dropdown-link">

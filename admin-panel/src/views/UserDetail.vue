@@ -17,7 +17,7 @@
 
     <h3>{{ $t('user.taskHistory') }}</h3>
     <el-table :data="userStatus.tasks" style="width: 100%">
-      <el-table-column prop="groupName" :label="$t('task.groupName')" />
+      <el-table-column prop="taskName" :label="$t('task.taskName')" />
       <el-table-column prop="description" :label="$t('task.descJson')" />
       <el-table-column prop="points" :label="$t('task.pointsPerTask')" />
       <el-table-column :label="$t('task.completed')">

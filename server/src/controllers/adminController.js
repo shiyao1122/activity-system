@@ -164,23 +164,44 @@ const deleteActivity = async (req, res) => {
 
 // CRUD Task
 const createTask = async (req, res) => {
-    const { activityId, groupName, points, dailyLimit, totalLimit, descJson, targetGroupName, platform } = req.body;
+    const { activityId, taskName, points, dailyLimit, totalLimit, descJson, targetTaskName, platform } = req.body;
     try {
+        // Validate taskName
+        if (!taskName) {
+            return res.status(400).json({ error: 'Task Name is required' });
+        }
+        // Only English letters, numbers, underscores, hyphens (No spaces, no non-English)
+        if (!/^[a-zA-Z0-9_-]+$/.test(taskName)) {
+            return res.status(400).json({ error: 'Task Name must be in English (alphanumeric, -, _) and contain no spaces' });
+        }
+
         // Check activity status
         const activity = await prisma.activity.findUnique({ where: { id: activityId } });
         if (!activity) return res.status(404).json({ error: 'Activity not found' });
         // if (activity.status !== 'DRAFT') return res.status(400).json({ error: 'Only DRAFT activities can be updated' }); 
 
+        // Uniqueness check
+        const existingTask = await prisma.task.findFirst({
+            where: {
+                activityId,
+                taskName: { equals: taskName, mode: 'insensitive' }
+            }
+        });
+        if (existingTask) {
+            return res.status(400).json({ error: `Task Name "${taskName}" already exists in this activity` });
+        }
+
         const task = await prisma.task.create({
             data: {
                 activityId,
-                groupName,
+                taskName,
                 points,
                 dailyLimit,
                 totalLimit,
                 descJson: typeof descJson === 'object' ? JSON.stringify(descJson) : descJson,
-                targetGroupName,
+                targetTaskName,
                 platform: platform || 'mobile', // Default to mobile if not provided
+                categoryId: req.body.categoryId || null,
             },
         });
         res.json(task);
@@ -205,22 +226,48 @@ const getTasks = async (req, res) => {
 
 const updateTask = async (req, res) => {
     const { id } = req.params;
-    const { groupName, points, dailyLimit, totalLimit, descJson, targetGroupName, platform } = req.body;
+    const { taskName, points, dailyLimit, totalLimit, descJson, targetTaskName, platform } = req.body;
     try {
         const task = await prisma.task.findUnique({ where: { id: parseInt(id) }, include: { activity: true } });
         if (!task) return res.status(404).json({ error: 'Task not found' });
         if (task.activity.status !== 'DRAFT') return res.status(400).json({ error: 'Only tasks in DRAFT activities can be updated' });
 
+        // Validate taskName
+        if (taskName) {
+            if (!/^[a-zA-Z0-9_-]+$/.test(taskName)) {
+                return res.status(400).json({ error: 'Task Name must be in English (alphanumeric, -, _) and contain no spaces' });
+            }
+
+            // Check uniqueness if changed
+            if (taskName !== task.taskName) {
+                const existingTask = await prisma.task.findFirst({
+                    where: {
+                        activityId: task.activityId,
+                        taskName: { equals: taskName, mode: 'insensitive' },
+                        id: { not: parseInt(id) }
+                    }
+                });
+                if (existingTask) {
+                    return res.status(400).json({ error: `Task Name "${taskName}" already exists in this activity` });
+                }
+            }
+        } else if (req.body.hasOwnProperty('taskName') && !taskName) {
+            // If passed but empty string
+            return res.status(400).json({ error: 'Task Name is required' });
+        }
+
+
         const updated = await prisma.task.update({
             where: { id: parseInt(id) },
             data: {
-                groupName,
+                taskName,
                 points,
                 dailyLimit,
                 totalLimit,
                 descJson: typeof descJson === 'object' ? JSON.stringify(descJson) : descJson,
-                targetGroupName,
+                targetTaskName,
                 platform,
+                categoryId: req.body.categoryId,
             },
         });
         res.json(updated);
@@ -281,13 +328,14 @@ const cloneActivity = async (req, res) => {
             if (sourceActivity.tasks && sourceActivity.tasks.length > 0) {
                 const tasksToCreate = sourceActivity.tasks.map(task => ({
                     activityId: createdActivity.id,
-                    groupName: task.groupName,
+                    taskName: task.taskName,
                     points: task.points,
                     dailyLimit: task.dailyLimit,
                     totalLimit: task.totalLimit,
                     descJson: task.descJson,
-                    targetGroupName: task.targetGroupName,
+                    targetTaskName: task.targetTaskName,
                     platform: task.platform,
+                    categoryId: task.categoryId,
                 }));
 
                 await prisma.task.createMany({
@@ -345,6 +393,67 @@ const translateText = async (req, res) => {
     }
 };
 
+// CRUD Category
+const createCategory = async (req, res) => {
+    try {
+        const { name } = req.body;
+        const category = await prisma.category.create({
+            data: { name },
+        });
+        res.json(category);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getCategories = async (req, res) => {
+    try {
+        const categories = await prisma.category.findMany();
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const updateCategory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name } = req.body;
+        const category = await prisma.category.update({
+            where: { id: parseInt(id) },
+            data: { name },
+        });
+        res.json(category);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const deleteCategory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        // Check if used by tasks? Optional.
+        // For now, if tasks use it, set to null or restrict? 
+        // Prisma default is usually restrict unless cascading.
+        // Let's just try delete. If linked, it might fail or set null depending on config.
+        // Schema: categoryId Int? (Optional) -> on delete set null is manual unless set in schema.
+        // Let's manually unset first for safety if we want to preserve tasks, or just let Prisma error if foreign key constraint exists.
+        // Wait, current schema: `categoryId Int?`
+        // We didn't specify onDelete. Default is usually "Restrict" or "No Action" in SQL.
+        // Let's handle it gracefully: Update tasks to null first.
+
+        await prisma.task.updateMany({
+            where: { categoryId: parseInt(id) },
+            data: { categoryId: null }
+        });
+
+        await prisma.category.delete({ where: { id: parseInt(id) } });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 
 module.exports = {
@@ -362,4 +471,8 @@ module.exports = {
     updateTask,
     deleteTask,
     translateText,
+    createCategory,
+    getCategories,
+    updateCategory,
+    deleteCategory,
 };
