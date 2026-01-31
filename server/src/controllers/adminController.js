@@ -456,6 +456,84 @@ const deleteCategory = async (req, res) => {
 
 
 
+const importTasks = async (req, res) => {
+    const { activityId, tasks } = req.body;
+
+    if (!activityId || !tasks || !Array.isArray(tasks)) {
+        return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    try {
+        const results = {
+            success: 0,
+            failed: 0,
+            errors: []
+        };
+
+        const activity = await prisma.activity.findUnique({ where: { id: parseInt(activityId) } });
+        if (!activity) return res.status(404).json({ error: 'Activity not found' });
+
+        for (const taskData of tasks) {
+            try {
+                // 1. Handle Category
+                let categoryId = null;
+                if (taskData.categoryName) {
+                    let category = await prisma.category.findUnique({
+                        where: { name: taskData.categoryName }
+                    });
+                    if (!category) {
+                        category = await prisma.category.create({
+                            data: { name: taskData.categoryName }
+                        });
+                    }
+                    categoryId = category.id;
+                }
+
+                // 2. Check Duplicate TaskName in this Activity
+                const existingTask = await prisma.task.findFirst({
+                    where: {
+                        activityId: parseInt(activityId),
+                        taskName: { equals: taskData.taskName, mode: 'insensitive' }
+                    }
+                });
+
+                if (existingTask) {
+                    results.failed++;
+                    results.errors.push(`Task "${taskData.taskName}" already exists.`);
+                    continue; // Skip
+                }
+
+                // 3. Create Task
+                await prisma.task.create({
+                    data: {
+                        activityId: parseInt(activityId),
+                        taskName: taskData.taskName,
+                        points: parseInt(taskData.points) || 0,
+                        dailyLimit: taskData.dailyLimit === 'unlimited' ? 0 : (parseInt(taskData.dailyLimit) || 0),
+                        totalLimit: taskData.totalLimit === 'unlimited' ? 0 : (parseInt(taskData.totalLimit) || 0),
+                        descJson: JSON.stringify({ en: taskData.descriptionEn || taskData.taskName }), // Default en to taskName or provided desc
+                        targetTaskName: taskData.targetTaskName || null,
+                        platform: taskData.platform || 'mobile',
+                        categoryId: categoryId
+                    }
+                });
+                results.success++;
+
+            } catch (err) {
+                console.error(`Error importing task ${taskData.taskName}:`, err);
+                results.failed++;
+                results.errors.push(`Error importing "${taskData.taskName}": ${err.message}`);
+            }
+        }
+
+        res.json(results);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     getStats,
     adjustPoints,
@@ -475,4 +553,5 @@ module.exports = {
     getCategories,
     updateCategory,
     deleteCategory,
+    importTasks,
 };

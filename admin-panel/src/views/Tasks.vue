@@ -2,7 +2,20 @@
   <div>
     <div class="header-actions">
       <h2>{{ $t('app.tasks') }} - {{ $t('activity.id') }} {{ activityId }}</h2>
-      <el-button type="primary" @click="openCreateDialog" v-if="activityStatus === 'DRAFT'">{{ $t('task.createTask') }}</el-button>
+      <div v-if="activityStatus === 'DRAFT'">
+          <el-button type="primary" @click="openCreateDialog">{{ $t('task.createTask') }}</el-button>
+          <el-upload
+            class="upload-excel"
+            action=""
+            :auto-upload="false"
+            :show-file-list="false"
+            :on-change="handleImport"
+            accept=".xlsx, .xls"
+            style="display: inline-block; margin-left: 10px;"
+          >
+            <el-button type="success">{{ $t('task.importTasks') }}</el-button>
+          </el-upload>
+      </div>
     </div>
 
     <el-table :data="tasks" style="width: 100%">
@@ -103,6 +116,7 @@ import { useRoute } from 'vue-router';
 import api from '../api';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useI18n } from 'vue-i18n';
+import * as XLSX from 'xlsx';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -264,6 +278,84 @@ watch(selectedLangs, async (newVal, oldVal) => {
     }
   }
 });
+
+const handleImport = (file) => {
+  if (!file) return;
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const json = XLSX.utils.sheet_to_json(worksheet);
+
+      if (json.length === 0) {
+        ElMessage.warning('Empty file');
+        return;
+      }
+
+      // Map columns
+      // Headers based on user image:
+      // A: 任务名称 (Description En)
+      // B: taskName(唯一值)
+      // C: Platform(mobile/desktop)
+      // D: category
+      // E: Points
+      // F: Total Limit
+      // G: Daily Limit
+      // H: Target Task Name
+
+      const tasksToImport = json.map(row => {
+        // Need to identify keys dynamically or assume standard
+        // Keys will be what is in the first row. 
+        // Assuming user uses English headers or specific Chinese headers as per image?
+        // The image has headers in Row 1.
+        // Let's try to access by vague matching or exact strings from image if possible.
+        // Better: access by index if we used header: 1 option? No, json object has keys.
+        // Image Headers: "任务名称", "taskName(唯一值)", "Platform(mobile/desktop)", "category", "Points", "Total Limit", "Daily Limit", "Target Task Name"
+        
+        return {
+           descriptionEn: row['任务名称'],
+           taskName: row['taskName(唯一值)'],
+           platform: row['Platform(mobile/desktop)'],
+           categoryName: row['category'],
+           points: row['Points'],
+           totalLimit: row['Total Limit'],
+           dailyLimit: row['Daily Limit'],
+           targetTaskName: row['Target Task Name']
+        };
+      });
+
+      // Send to backend
+      api.post('/task/import', {
+          activityId: parseInt(activityId),
+          tasks: tasksToImport
+      }).then(res => {
+          const { success, failed, errors } = res.data;
+          if (failed > 0) {
+              ElMessageBox.alert(
+                  `Imported: ${success}, Failed: ${failed}. \nErrors: \n${errors.join('\n')}`,
+                  'Import Result',
+                  { confirmButtonText: 'OK' }
+              );
+          } else {
+              ElMessage.success(`Successfully imported ${success} tasks.`);
+          }
+          fetchTasks(); 
+          fetchCategories(); // Reload categories in case new ones were created
+      }).catch(err => {
+          ElMessage.error('Import failed: ' + (err.response?.data?.error || err.message));
+      });
+
+    } catch (e) {
+      console.error(e);
+      ElMessage.error('Failed to parse file');
+    }
+  };
+  reader.readAsArrayBuffer(file.raw);
+};
 
 const submitTask = async () => {
   if (!formRef.value) return;

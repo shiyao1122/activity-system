@@ -30,4 +30,7 @@ router.get('/category', adminController.getCategories);
 router.put('/category/:id', adminController.updateCategory);
 router.delete('/category/:id', adminController.deleteCategory);
 
+// Import
+router.post('/task/import', adminController.importTasks);
+
 module.exports = router;

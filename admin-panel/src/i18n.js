@@ -58,6 +58,8 @@ const messages = {
         task: {
             taskName: 'Task Name',
             targetTaskName: 'Target Task Name (Invite)',
+            createTask: 'Create Task',
+            importTasks: 'Import Tasks',
             points: 'Points',
             dailyLimit: 'Daily Limit',
             totalLimit: 'Total Limit',
@@ -150,6 +152,8 @@ const messages = {
         task: {
             taskName: '任务名称',
             targetTaskName: '目标任务名称 (邀请)',
+            createTask: '创建任务',
+            importTasks: '导入任务',
             points: '分值',
             dailyLimit: '每日上限',
             totalLimit: '总上限',
