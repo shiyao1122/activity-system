@@ -5,4 +5,9 @@ const api = axios.create({
     baseURL: API_URL + '/admin', // Adjust if needed
 });
 
+
+export const clientApi = axios.create({
+    baseURL: API_URL + '/v1',
+});
+
 export default api;

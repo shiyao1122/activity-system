@@ -58,8 +58,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
 import { useRoute } from 'vue-router';
-import api from '../api';
-import axios from 'axios'; // Need direct axios for client API call to get status? Or use admin API?
+import api, { clientApi } from '../api';
 // Admin API doesn't have "get user status" endpoint explicitly defined in TDD, but Client API does.
 // We can use Client API endpoint for viewing status, or add one to Admin API.
 // Let's use Client API endpoint `GET /api/v1/user/status` for simplicity, assuming admin can call it.
@@ -85,7 +84,7 @@ const adjustForm = reactive({
 const fetchUserStatus = async () => {
   try {
     // Calling Client API
-    const res = await axios.get(`http://localhost:3000/api/v1/user/status`, {
+    const res = await clientApi.get(`/user/status`, {
       params: { email, activityId, lang: 'en' }
     });
     userStatus.totalPoints = res.data.totalPoints;
