@@ -225,7 +225,8 @@ const getUserStatus = async (req, res) => {
                     total: task.totalLimit,
                     daily: task.dailyLimit,
                 },
-                isFinished: (task.totalLimit > 0 && totalCompleted >= task.totalLimit)
+                isFinished: (task.totalLimit > 0 && totalCompleted >= task.totalLimit),
+                jumpUrl: task.jumpUrl
             };
         });
 
@@ -277,6 +278,7 @@ const getActivityDetails = async (req, res) => {
                     total: task.totalLimit,
                     daily: task.dailyLimit,
                 },
+                jumpUrl: task.jumpUrl
             };
         });
 
