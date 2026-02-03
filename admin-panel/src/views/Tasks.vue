@@ -28,6 +28,7 @@
           {{ scope.row.platform || 'mobile' }}
         </template>
       </el-table-column>
+      <el-table-column prop="jumpUrl" label="Jump URL" show-overflow-tooltip />
       <el-table-column :label="$t('task.category')" width="120">
         <template #default="scope">
           {{ categories.find(c => c.id === scope.row.categoryId)?.name || '-' }}
@@ -57,6 +58,9 @@
             <el-option label="APP" value="APP" />
             <el-option label="PC" value="PC" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="Jump URL">
+          <el-input v-model="form.jumpUrl" placeholder="Optional: e.g. https://youtube.com" />
         </el-form-item>
         <el-form-item :label="$t('task.category')" prop="categoryId">
           <el-select v-model="form.categoryId" placeholder="Select Category" clearable>
@@ -130,6 +134,7 @@ const form = ref({
   taskName: '',
   targetTaskName: '',
   platform: 'mobile',
+  jumpUrl: '',
   categoryId: null,
   points: 0,
   dailyLimit: 0,
@@ -200,7 +205,7 @@ const fetchTasks = async () => {
 
 const openCreateDialog = () => {
   isEdit.value = false;
-  form.value = { taskName: '', targetTaskName: '', platform: 'mobile', categoryId: null, points: 0, dailyLimit: 0, totalLimit: 0 };
+  form.value = { taskName: '', targetTaskName: '', platform: 'mobile', jumpUrl: '', categoryId: null, points: 0, dailyLimit: 0, totalLimit: 0 };
   descForm.en = '';
   descForm.others = {};
   selectedLangs.value = [];
@@ -214,6 +219,7 @@ const openEditDialog = (row) => {
     taskName: row.taskName,
     targetTaskName: row.targetTaskName || '',
     platform: row.platform || 'mobile',
+    jumpUrl: row.jumpUrl || '',
     categoryId: row.categoryId || null,
     points: row.points,
     dailyLimit: row.dailyLimit,
@@ -376,6 +382,7 @@ const submitTask = async () => {
       taskName: form.value.taskName,
       targetTaskName: form.value.targetTaskName || null,
       platform: form.value.platform,
+      jumpUrl: form.value.jumpUrl || null,
       categoryId: form.value.categoryId || null,
       points: form.value.points,
       dailyLimit: form.value.dailyLimit,

@@ -31,6 +31,7 @@ model Task {
   totalLimit  Int      @default(0) // 0 for unlimited
   descJson    String   // Storing JSON as String for SQLite compatibility, or use Json if switching to Postgres
   targetTaskName String? // If set, this task is completed when an invitee completes a task with this taskName (Renamed from targetGroupName)
+  jumpUrl     String?
   platform    String   @default("mobile") // mobile, desktop
   categoryId  Int?
   category    Category? @relation(fields: [categoryId], references: [id])

@@ -164,7 +164,7 @@ const deleteActivity = async (req, res) => {
 
 // CRUD Task
 const createTask = async (req, res) => {
-    const { activityId, taskName, points, dailyLimit, totalLimit, descJson, targetTaskName, platform } = req.body;
+    const { activityId, taskName, points, dailyLimit, totalLimit, descJson, targetTaskName, platform, jumpUrl } = req.body;
     try {
         // Validate taskName
         if (!taskName) {
@@ -200,7 +200,9 @@ const createTask = async (req, res) => {
                 totalLimit,
                 descJson: typeof descJson === 'object' ? JSON.stringify(descJson) : descJson,
                 targetTaskName,
+                targetTaskName,
                 platform: platform || 'mobile', // Default to mobile if not provided
+                jumpUrl,
                 categoryId: req.body.categoryId || null,
             },
         });
@@ -226,7 +228,7 @@ const getTasks = async (req, res) => {
 
 const updateTask = async (req, res) => {
     const { id } = req.params;
-    const { taskName, points, dailyLimit, totalLimit, descJson, targetTaskName, platform } = req.body;
+    const { taskName, points, dailyLimit, totalLimit, descJson, targetTaskName, platform, jumpUrl } = req.body;
     try {
         const task = await prisma.task.findUnique({ where: { id: parseInt(id) }, include: { activity: true } });
         if (!task) return res.status(404).json({ error: 'Task not found' });
@@ -266,7 +268,9 @@ const updateTask = async (req, res) => {
                 totalLimit,
                 descJson: typeof descJson === 'object' ? JSON.stringify(descJson) : descJson,
                 targetTaskName,
+                targetTaskName,
                 platform,
+                jumpUrl,
                 categoryId: req.body.categoryId,
             },
         });
@@ -335,6 +339,7 @@ const cloneActivity = async (req, res) => {
                     descJson: task.descJson,
                     targetTaskName: task.targetTaskName,
                     platform: task.platform,
+                    jumpUrl: task.jumpUrl,
                     categoryId: task.categoryId,
                 }));
 
@@ -514,6 +519,7 @@ const importTasks = async (req, res) => {
                         descJson: JSON.stringify({ en: taskData.descriptionEn || taskData.taskName }), // Default en to taskName or provided desc
                         targetTaskName: taskData.targetTaskName || null,
                         platform: taskData.platform || 'mobile',
+                        jumpUrl: taskData.jumpUrl || null,
                         categoryId: categoryId
                     }
                 });
