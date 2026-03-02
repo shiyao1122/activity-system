@@ -331,7 +331,7 @@ const handleImport = (file) => {
            totalLimit: row['Total Limit'],
            dailyLimit: row['Daily Limit'],
            targetTaskName: row['Target Task Name'],
-           jumpUrl: row['Jump Url']
+           jumpUrl: row['Jump URL'] || row['Jump Url'] || row['jumpUrl']
         };
       });
 
