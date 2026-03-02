@@ -330,7 +330,8 @@ const handleImport = (file) => {
            points: row['Points'],
            totalLimit: row['Total Limit'],
            dailyLimit: row['Daily Limit'],
-           targetTaskName: row['Target Task Name']
+           targetTaskName: row['Target Task Name'],
+           jumpUrl: row['Jump Url']
         };
       });
 
